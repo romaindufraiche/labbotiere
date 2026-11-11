@@ -96,7 +96,7 @@
       </nav>
       <div class="header__actions">
         <a class="btn btn--light btn--sm" href="tel:${D.phone}">${ic('phone')} ${D.phoneLabel}</a>
-        <a class="btn btn--amber btn--sm" href="${D.booking}" target="_blank" rel="noopener">Réserver</a>
+        <a class="btn btn--amber btn--sm" href="#reserver">Réserver</a>
         <button class="header__burger" aria-label="Ouvrir le menu" aria-expanded="false"><span></span></button>
       </div>
     </div>`;
@@ -106,7 +106,7 @@
   mnav.className = 'mnav';
   mnav.setAttribute('aria-label', 'Menu mobile');
   mnav.innerHTML = navLinks.map(([h, l]) => `<a href="${href(h)}">${l}</a>`).join('') +
-    `<a href="${D.booking}" target="_blank" rel="noopener" style="color:var(--amber)">Réserver en ligne</a>
+    `<a href="#reserver" style="color:var(--amber)">Réserver</a>
      <div class="mnav__foot">${D.address}<br><a href="tel:${D.phone}" style="font-family:var(--sans);font-size:15px;opacity:1;transform:none;display:inline">${D.phoneLabel}</a></div>`;
   header.after(mnav);
 
@@ -161,7 +161,7 @@
           <ul>
             <li><a href="${D.maps}" target="_blank" rel="noopener">La Bottière, En Brovant<br>73340 Aillon-le-Vieux</a></li>
             <li><a href="tel:${D.phone}">${D.phoneLabel}</a></li>
-            <li><a href="${D.booking}" target="_blank" rel="noopener">Réserver en direct</a></li>
+            <li><a href="#reserver">Réserver en direct</a></li>
           </ul>
         </div>
       </div>
@@ -391,6 +391,359 @@
   };
 
   /* ==========================================================================
+     RÉSERVATION — état partagé, sélecteurs maison (sans les contrôles natifs
+     du système), section « Réserver » en bas de chaque page
+     ========================================================================== */
+  const pad = (n) => String(n).padStart(2, '0');
+  const isoD = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parseD = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const todayISO = isoD(new Date());
+  const isIso = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s || '');
+  const nightsOf = (a, b) => Math.round((parseD(b) - parseD(a)) / 864e5);
+  const fmtD = (s, o = { weekday: 'short', day: 'numeric', month: 'short' }) => parseD(s).toLocaleDateString('fr-FR', o);
+  const byId = (id) => D.logements.find((l) => l.id === id);
+  const maxGuests = (id) => (byId(id) ? byId(id).guests : 15);
+
+  // État de la réservation, partagé par la recherche, la carte et la section « Réserver »
+  const q0 = new URLSearchParams(location.search);
+  const pageLid = ($('#logement') && $('#logement').dataset.id) || '';
+  const st = { lid: pageLid || (byId(q0.get('logement')) ? q0.get('logement') : ''), a: '', b: '', g: 2 };
+  if (isIso(q0.get('arrivee')) && q0.get('arrivee') >= todayISO) st.a = q0.get('arrivee');
+  if (st.a && isIso(q0.get('depart')) && q0.get('depart') > st.a) st.b = q0.get('depart');
+  if (+q0.get('voyageurs') > 0) st.g = +q0.get('voyageurs');
+  st.g = Math.min(st.g, maxGuests(st.lid));
+  const subs = [];
+  const setSt = (patch) => {
+    Object.assign(st, patch);
+    st.g = Math.min(Math.max(1, st.g), maxGuests(st.lid));
+    subs.forEach((f) => f(st));
+  };
+  const onSt = (f) => { subs.push(f); f(st); };
+
+  // Estimation à partir de la grille « hors vacances » du site
+  const stayEstimate = (lid, a, b, g) => {
+    const L = byId(lid);
+    if (!L || !a || !b) return null;
+    const n = nightsOf(a, b);
+    if (!(n > 0)) return null;
+    let base;
+    if (lid === 'marmotte') base = L.price * n;
+    else if (lid === 'atelier') base = Math.floor(n / 7) * 420 + Math.min(n % 7, 6) * 70;
+    else {
+      const grid = { 1: 280, 2: 280, 3: 300, 4: 400, 5: 500, 6: 600 };
+      base = Math.floor(n / 7) * 600 + (n % 7 ? grid[n % 7] : 0);
+    }
+    const extra = { 7: 15, 8: 20, 9: 25, 10: 30 };
+    const sup = (lid === 'margeriaz' || lid === 'colombier') && g > 6 ? (extra[g] || 30) * n : 0;
+    const tooShort = (lid === 'margeriaz' || lid === 'colombier') && n < 2;
+    return { n, base, sup, total: base + sup, tooShort };
+  };
+  const estHTML = (lid, a, b, g) => {
+    const e = stayEstimate(lid, a, b, g);
+    if (!e) return '';
+    return `
+      <div><u>${e.n} nuit${e.n > 1 ? 's' : ''}${e.n >= 7 ? ' (7e nuit offerte)' : ''}</u><span>${euro(e.base)}</span></div>
+      ${e.sup ? `<div><u>Supplément ${g} voyageurs</u><span>${euro(e.sup)}</span></div>` : ''}
+      <div><u>Taxe de séjour</u><span style="color:var(--muted)">en sus</span></div>
+      <div class="book__total"><span>Estimation hors vacances</span><span>${euro(e.total)}</span></div>
+      ${e.tooShort ? '<p class="est-warn">2 nuits minimum pour ce gîte.</p>' : ''}
+      ${lid === 'marmotte' ? '<p class="est-warn">Uniquement en complément d’un gîte.</p>' : ''}
+      <p style="margin:0;font-size:12.5px;color:var(--muted)">Tarif indicatif, confirmé avec vous. Vacances scolaires : séjours à la semaine.</p>`;
+  };
+
+  // Champ « bouton » (remplace input/select)
+  function pfield(k, label, cls = '') {
+    return `<button type="button" class="pf ${cls}" data-f="${k}" aria-haspopup="dialog" aria-expanded="false"><span class="pf-lbl">${label}</span><span class="pf-val"></span></button>`;
+  }
+
+  /* ----- Fenêtres (popovers / feuilles sur mobile) ----- */
+  const backdrop = document.createElement('div');
+  backdrop.className = 'pop-backdrop';
+  document.body.append(backdrop);
+  const isSheet = () => window.innerWidth < 640;
+  let cur = null; // { el, trigger, root }
+
+  function closePop() {
+    if (!cur) return;
+    cur.el.classList.remove('is-open');
+    $$('.pf.is-active', cur.root).forEach((x) => { x.classList.remove('is-active'); x.setAttribute('aria-expanded', 'false'); });
+    backdrop.classList.remove('is-on');
+    if (isSheet()) document.body.classList.remove('is-locked');
+    cur = null;
+  }
+  function placePop(el, anchor) {
+    if (isSheet()) { el.style.left = el.style.top = ''; return; }
+    const r = anchor.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    const center = el.classList.contains('pop--cal');
+    let left = center ? r.left + r.width / 2 - w / 2 : r.left;
+    left = Math.min(Math.max(12, left), window.innerWidth - w - 12);
+    let top = r.bottom + 10;
+    if (top + h > window.innerHeight - 12 && r.top - h - 10 > 12) top = r.top - h - 10;
+    el.style.left = left + window.scrollX + 'px';
+    el.style.top = top + window.scrollY + 'px';
+  }
+  function openPop(el, trigger, root, anchor) {
+    if (cur && cur.el === el) { // même fenêtre, autre champ (Arrivée → Départ)
+      cur.trigger = trigger;
+      trigger.setAttribute('aria-expanded', 'true');
+      return;
+    }
+    closePop();
+    if (!el.isConnected) document.body.append(el);
+    cur = { el, trigger, root, anchor: anchor || trigger };
+    trigger.classList.add('is-active');
+    trigger.setAttribute('aria-expanded', 'true');
+    placePop(el, cur.anchor);
+    requestAnimationFrame(() => el.classList.add('is-open'));
+    if (isSheet()) { backdrop.classList.add('is-on'); document.body.classList.add('is-locked'); }
+  }
+  document.addEventListener('mousedown', (e) => {
+    if (!cur) return;
+    if (cur.el.contains(e.target) || cur.trigger.contains(e.target)) return;
+    if (e.target.closest('.pf') && cur.root.contains(e.target)) return; // passage d’un champ à l’autre
+    closePop();
+  });
+  backdrop.addEventListener('click', closePop);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(); });
+  window.addEventListener('resize', () => cur && placePop(cur.el, cur.anchor));
+
+  /* ----- Liste des logements ----- */
+  const listEl = document.createElement('div');
+  listEl.className = 'pop pop--list';
+  listEl.setAttribute('role', 'dialog');
+  function openList(trigger, root) {
+    const all = root.dataset.all === '1';
+    const opts = (all ? [{ id: '', name: 'Tous les logements', sub: 'De 3 à 15 voyageurs' }] : []).concat(
+      D.logements.map((l) => ({ id: l.id, name: l.name, sub: `${l.guests} voyageurs · ${l.surface} m² · dès ${l.price} €`, img: img(l.img, 1, true) })));
+    listEl.innerHTML = `<p class="pop__title">Choisissez votre logement</p>` + opts.map((o) => `
+      <button type="button" class="pop-opt ${o.id === st.lid ? 'is-sel' : ''}" data-v="${o.id}">
+        ${o.img ? `<img src="${o.img}" alt="">` : `<span class="ico-all">${ic('home')}</span>`}
+        <span><strong>${o.name}</strong><small>${o.sub}</small></span>${ic('check', 'chk')}
+      </button>`).join('');
+    $$('.pop-opt', listEl).forEach((b) => b.addEventListener('click', () => {
+      setSt({ lid: b.dataset.v });
+      closePop();
+      const next = $('[data-f="a"]', root);
+      if (next && !st.a) setTimeout(() => next.click(), 180);
+    }));
+    openPop(listEl, trigger, root);
+  }
+
+  /* ----- Voyageurs ----- */
+  const guestEl = document.createElement('div');
+  guestEl.className = 'pop pop--guests';
+  guestEl.setAttribute('role', 'dialog');
+  function openGuests(trigger, root) {
+    const lid = root.dataset.for || st.lid;
+    const render = () => {
+      const max = maxGuests(lid);
+      guestEl.innerHTML = `
+        <div class="gst">
+          <div><strong>Voyageurs</strong><small>Adultes et enfants</small></div>
+          <div class="step">
+            <button type="button" data-d="-1" aria-label="Retirer un voyageur" ${st.g <= 1 ? 'disabled' : ''}>−</button>
+            <output aria-live="polite">${st.g}</output>
+            <button type="button" data-d="1" aria-label="Ajouter un voyageur" ${st.g >= max ? 'disabled' : ''}>+</button>
+          </div>
+        </div>
+        <p class="gst-note">${byId(lid) ? `Jusqu’à ${max} voyageurs dans ce logement.` : 'Jusqu’à 15 voyageurs en réunissant deux gîtes.'} Lit et matériel bébé sur demande.</p>`;
+      $$('[data-d]', guestEl).forEach((b) => b.addEventListener('click', () => { setSt({ g: st.g + +b.dataset.d }); render(); }));
+    };
+    render();
+    openPop(guestEl, trigger, root);
+  }
+
+  /* ----- Calendrier (plage de dates) ----- */
+  const calEl = document.createElement('div');
+  calEl.className = 'pop pop--cal';
+  calEl.setAttribute('role', 'dialog');
+  calEl.setAttribute('aria-label', 'Choisir les dates');
+  let calFocus = 'a', calView = null, calRoot = null;
+  const monthStart = (d) => new Date(d.getFullYear(), d.getMonth(), 1);
+  const nowMonth = monthStart(new Date());
+  const WD = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+
+  function monthHTML(m) {
+    const title = m.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    let h = `<div class="cal2__m"><p class="cal2__title">${title}</p><div class="cal2__grid">${WD.map((w) => `<span class="cal2__wd">${w}</span>`).join('')}`;
+    const lead = (m.getDay() + 6) % 7;
+    for (let i = 0; i < lead; i++) h += '<span></span>';
+    const days = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+    for (let d = 1; d <= days; d++) {
+      const iso = isoD(new Date(m.getFullYear(), m.getMonth(), d));
+      const c = ['cal2__d'];
+      if (iso === todayISO) c.push('is-today');
+      if (iso === st.a) c.push('is-start');
+      if (iso === st.b) c.push('is-end');
+      if (st.a && st.b) { if (iso > st.a && iso < st.b) c.push('is-in'); if (iso === st.a) c.push('has-end'); }
+      h += `<button type="button" class="${c.join(' ')}" data-d="${iso}" ${iso < todayISO ? 'disabled' : ''} aria-label="${fmtD(iso, { weekday: 'long', day: 'numeric', month: 'long' })}"><span>${d}</span></button>`;
+    }
+    return h + '</div></div>';
+  }
+  function renderCal() {
+    const n = st.a && st.b ? nightsOf(st.a, st.b) : 0;
+    const L = byId(calRoot && (calRoot.dataset.for || st.lid));
+    const hint = calFocus === 'a' || !st.a ? 'Choisissez votre date d’arrivée' : 'Choisissez votre date de départ';
+    calEl.innerHTML = `
+      <div class="cal2__head">
+        <button type="button" class="cal2__nav" data-nav="-1" aria-label="Mois précédent" ${calView <= nowMonth ? 'disabled' : ''}>${ic('left')}</button>
+        <p class="cal2__hint">${hint}<small>${L ? L.minNights : 'Grands gîtes : 2 nuits min. · Atelier : 1 nuit'}</small></p>
+        <button type="button" class="cal2__nav" data-nav="1" aria-label="Mois suivant">${ic('right')}</button>
+      </div>
+      <div class="cal2__months">${monthHTML(calView)}${monthHTML(new Date(calView.getFullYear(), calView.getMonth() + 1, 1))}</div>
+      <div class="cal2__foot">
+        <button type="button" class="cal2__clear">Effacer les dates</button>
+        <span class="cal2__n">${n ? `${n} nuit${n > 1 ? 's' : ''} · ${fmtD(st.a)} → ${fmtD(st.b)}` : ''}</span>
+        <button type="button" class="btn btn--sm cal2__ok">Valider</button>
+      </div>`;
+    if (calRoot) $$('.pf', calRoot).forEach((x) => x.classList.toggle('is-active', x.dataset.f === (calFocus === 'b' && st.a ? 'b' : 'a')));
+  }
+  calEl.addEventListener('click', (e) => {
+    const nav = e.target.closest('[data-nav]');
+    if (nav) { calView = new Date(calView.getFullYear(), calView.getMonth() + +nav.dataset.nav, 1); renderCal(); return; }
+    if (e.target.closest('.cal2__clear')) { setSt({ a: '', b: '' }); calFocus = 'a'; renderCal(); return; }
+    if (e.target.closest('.cal2__ok')) { closePop(); return; }
+    const day = e.target.closest('[data-d]');
+    if (!day || day.disabled) return;
+    const d = day.dataset.d;
+    if (calFocus === 'a' || !st.a) {
+      setSt({ a: d, b: st.b && st.b > d ? st.b : '' });
+      calFocus = 'b';
+    } else if (d <= st.a) {
+      setSt({ a: d, b: '' });
+    } else {
+      setSt({ b: d });
+      renderCal();
+      setTimeout(closePop, 280);
+      return;
+    }
+    renderCal();
+  });
+  // Aperçu de la plage au survol
+  calEl.addEventListener('mouseover', (e) => {
+    const day = e.target.closest('[data-d]');
+    if (!day || calFocus !== 'b' || !st.a) return;
+    const h = day.dataset.d;
+    $$('.cal2__d', calEl).forEach((x) => x.classList.toggle('is-preview', x.dataset.d > st.a && x.dataset.d <= h));
+  });
+  calEl.addEventListener('mouseleave', () => $$('.is-preview', calEl).forEach((x) => x.classList.remove('is-preview')));
+
+  function openCal(trigger, root, focus) {
+    calRoot = root;
+    calFocus = focus;
+    calView = monthStart(st.a ? parseD(st.a) : new Date());
+    if (calView < nowMonth) calView = nowMonth;
+    renderCal();
+    openPop(calEl, trigger, root, root.dataset.anchor === 'root' ? root : trigger.closest('.pfields') || trigger);
+    if (cur) placePop(calEl, cur.anchor);
+  }
+
+  /* ----- Liaison d’un groupe de champs ----- */
+  function bindFields(root) {
+    const f = (k) => $(`[data-f="${k}"]`, root);
+    const setVal = (el, txt, empty) => { if (!el) return; $('.pf-val', el).textContent = txt; el.classList.toggle('is-empty', !!empty); };
+    onSt((s) => {
+      setVal(f('lid'), s.lid ? byId(s.lid).name : root.dataset.all === '1' ? 'Tous les logements' : 'Choisir un logement', !s.lid && root.dataset.all !== '1');
+      setVal(f('a'), s.a ? fmtD(s.a) : 'Ajouter une date', !s.a);
+      setVal(f('b'), s.b ? fmtD(s.b) : 'Ajouter une date', !s.b);
+      setVal(f('g'), `${s.g} voyageur${s.g > 1 ? 's' : ''}`);
+      if (cur && cur.el === calEl && calRoot === root) renderCal();
+    });
+    if (f('lid')) f('lid').addEventListener('click', () => openList(f('lid'), root));
+    if (f('a')) f('a').addEventListener('click', () => openCal(f('a'), root, 'a'));
+    if (f('b')) f('b').addEventListener('click', () => openCal(f('b'), root, st.a ? 'b' : 'a'));
+    if (f('g')) f('g').addEventListener('click', () => openGuests(f('g'), root));
+  }
+
+  /* ----- Section « Réserver » (avant le pied de page) ----- */
+  const reserve = document.createElement('section');
+  reserve.className = 'section reserve';
+  reserve.id = 'reserver';
+  reserve.innerHTML = `
+    <div class="container reserve__grid">
+      <div class="reserve__intro">
+        <span class="eyebrow" data-reveal>Réserver en direct</span>
+        <h2 data-split>Votre demande de <em>réservation</em></h2>
+        <p class="lead" data-reveal>Choisissez votre logement et vos dates : nous vous confirmons la disponibilité rapidement, par téléphone ou par SMS.</p>
+        <ul class="story__list">
+          <li data-reveal><span class="ico">${ic('shield')}</span><div><strong>Meilleur tarif garanti</strong><span>Sans commission de plateforme, avec les mêmes conditions.</span></div></li>
+          <li data-reveal style="--d:.08s"><span class="ico">${ic('phone')}</span><div><strong>Une réponse rapide</strong><span>Directement avec nous, par téléphone ou SMS.</span></div></li>
+          <li data-reveal style="--d:.16s"><span class="ico">${ic('key')}</span><div><strong>Tout est prêt à votre arrivée</strong><span>Lits faits, chauffage inclus, conseils pour vos balades.</span></div></li>
+        </ul>
+        <p data-reveal>Vous préférez appeler ? <a class="link-arrow" href="tel:${D.phone}">${D.phoneLabel}</a></p>
+      </div>
+
+      <form class="rform" id="rform" novalidate data-reveal="scale">
+        <div class="pfields" id="rfields">
+          ${pfield('lid', 'Logement', 'pf--full')}${pfield('a', 'Arrivée')}${pfield('b', 'Départ')}${pfield('g', 'Voyageurs', 'pf--full')}
+        </div>
+        <div class="book__lines rform__est" id="r-est" hidden></div>
+        <div class="rform__row">
+          <label class="tf"><span>Votre nom</span><input name="name" autocomplete="name" placeholder="Prénom et nom" maxlength="80"></label>
+          <label class="tf"><span>Téléphone</span><input name="tel" type="tel" autocomplete="tel" inputmode="tel" placeholder="06 12 34 56 78" maxlength="30"></label>
+        </div>
+        <label class="tf"><span>Un message ? <i>(facultatif)</i></span><textarea name="msg" rows="2" maxlength="600" placeholder="Heure d’arrivée, bain nordique, petit-déjeuner…"></textarea></label>
+        <button class="btn btn--amber btn--block" type="submit">Envoyer ma demande ${ic('arrow')}</button>
+        <p class="rform__hint">Votre demande s’ouvre dans votre messagerie, prête à envoyer. Aucun paiement à cette étape.</p>
+
+        <div class="rform__done" hidden>
+          <span class="rform__check">${ic('check')}</span>
+          <h3>Votre demande est prête !</h3>
+          <p class="rform__recap"></p>
+          <p class="rform__help">Si votre messagerie ne s’est pas ouverte, appelez-nous ou copiez le message pour nous l’envoyer.</p>
+          <div class="rform__acts">
+            <a class="btn btn--sm" href="tel:${D.phone}">${ic('phone')} ${D.phoneLabel}</a>
+            <button type="button" class="btn btn--ghost btn--sm" data-copy>Copier le message</button>
+          </div>
+          <button type="button" class="tool" data-edit>Modifier ma demande</button>
+        </div>
+      </form>
+    </div>`;
+  footer.before(reserve);
+
+  const rform = $('#rform');
+  bindFields($('#rfields'));
+  onSt((s) => {
+    const html = estHTML(s.lid, s.a, s.b, s.g);
+    $('#r-est').innerHTML = html;
+    $('#r-est').hidden = !html;
+  });
+  // Coordonnées retenues pour la fois suivante
+  const saved = JSON.parse(localStorage.getItem('bottiere-contact') || '{}');
+  rform.name.value = saved.name || '';
+  rform.tel.value = saved.tel || '';
+
+  let lastMsg = '';
+  const flag = (el) => { el.classList.remove('is-error'); void el.offsetWidth; el.classList.add('is-error'); setTimeout(() => el.classList.remove('is-error'), 1600); };
+  rform.addEventListener('submit', (e) => {
+    e.preventDefault();
+    closePop();
+    const name = rform.name.value.trim(), tel = rform.tel.value.trim(), msg = rform.msg.value.trim();
+    if (!st.lid) { flag($('[data-f="lid"]', rform)); toast('Choisissez votre logement'); return; }
+    if (!st.a || !st.b) { flag($(`[data-f="${st.a ? 'b' : 'a'}"]`, rform)); toast('Choisissez vos dates d’arrivée et de départ'); return; }
+    if (!name) { flag(rform.name); rform.name.focus(); toast('Indiquez votre nom'); return; }
+    localStorage.setItem('bottiere-contact', JSON.stringify({ name, tel }));
+    const L = byId(st.lid), e2 = stayEstimate(st.lid, st.a, st.b, st.g);
+    const long = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    lastMsg = `Bonjour, je souhaite réserver ${L.name} du ${fmtD(st.a, long)} au ${fmtD(st.b, long)} (${e2.n} nuit${e2.n > 1 ? 's' : ''}) pour ${st.g} voyageur${st.g > 1 ? 's' : ''}.`
+      + ` Estimation du site : ${euro(e2.total)}.`
+      + (msg ? `\n${msg}` : '')
+      + `\n${name}${tel ? ' — ' + tel : ''}`;
+    $('.rform__recap', rform).innerHTML = `<strong>${L.name}</strong><br>${fmtD(st.a, { weekday: 'long', day: 'numeric', month: 'long' })} → ${fmtD(st.b, { weekday: 'long', day: 'numeric', month: 'long' })}<br>${e2.n} nuit${e2.n > 1 ? 's' : ''} · ${st.g} voyageur${st.g > 1 ? 's' : ''} · estimation ${euro(e2.total)}`;
+    rform.classList.add('is-done');
+    $('.rform__done', rform).hidden = false;
+    const a = document.createElement('a');
+    a.href = `sms:${D.phone}?&body=${encodeURIComponent(lastMsg)}`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+  });
+  $('[data-copy]', rform).addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(lastMsg); toast('Message copié'); } catch (_) { toast('Copie impossible sur cet appareil'); }
+  });
+  $('[data-edit]', rform).addEventListener('click', () => { rform.classList.remove('is-done'); $('.rform__done', rform).hidden = true; });
+
+  /* ==========================================================================
      ACCUEIL
      ========================================================================== */
   if (isHome) {
@@ -428,21 +781,14 @@
     }));
 
     // Recherche
-    const today = new Date().toISOString().slice(0, 10);
-    const sIn = $('#s-in'), sOut = $('#s-out');
-    sIn.min = today; sOut.min = today;
-    sIn.addEventListener('change', () => {
-      sOut.min = sIn.value;
-      if (!sOut.value || sOut.value <= sIn.value) {
-        const d = new Date(sIn.value); d.setDate(d.getDate() + 2); sOut.value = d.toISOString().slice(0, 10);
-      }
-    });
+    bindFields($('#search'));
     $('#search').addEventListener('submit', (e) => {
       e.preventDefault();
-      const where = $('#s-where').value, g = +$('#s-guests').value;
+      closePop();
+      const where = st.lid || 'all', g = st.g;
       const qs = new URLSearchParams();
-      if (sIn.value) qs.set('arrivee', sIn.value);
-      if (sOut.value) qs.set('depart', sOut.value);
+      if (st.a) qs.set('arrivee', st.a);
+      if (st.b) qs.set('depart', st.b);
       qs.set('voyageurs', g);
       if (where !== 'all') {
         const l = D.logements.find((x) => x.id === where);
@@ -564,17 +910,11 @@
           <aside class="book">
             <div class="book__card" data-reveal="scale">
               <div class="book__price"><small>${L.priceNote}</small><strong>${L.price} €</strong><span>/ nuit</span></div>
-              <form class="book__form" id="book" onsubmit="return false">
-                <div class="book__dates">
-                  <div class="book__f"><label for="b-in">Arrivée</label><input type="date" id="b-in"></div>
-                  <div class="book__f"><label for="b-out">Départ</label><input type="date" id="b-out"></div>
-                </div>
-                <div class="book__f book__guests"><label for="b-g">Voyageurs</label>
-                  <select id="b-g">${Array.from({ length: L.guests }, (_, k) => `<option value="${k + 1}">${k + 1} voyageur${k ? 's' : ''}</option>`).join('')}</select>
-                </div>
-              </form>
-              <a class="btn btn--amber btn--block" id="b-go" href="${D.booking}" target="_blank" rel="noopener" data-magnetic>Vérifier les disponibilités ${ic('arrow')}</a>
-              <p class="book__hint">Paiement sécurisé sur notre moteur de réservation</p>
+              <div class="pfields" id="book" data-for="${L.id}">
+                ${pfield('a', 'Arrivée')}${pfield('b', 'Départ')}${pfield('g', 'Voyageurs', 'pf--full')}
+              </div>
+              <a class="btn btn--amber btn--block" id="b-go" href="#reserver" data-magnetic>Réserver ${ic('arrow')}</a>
+              <p class="book__hint">Demande sans engagement · réponse rapide par téléphone ou SMS</p>
               <div class="book__lines" id="b-lines" hidden></div>
               <div class="book__rules">${L.minNights}</div>
             </div>
@@ -592,7 +932,7 @@
 
       <div class="mbar" id="mbar">
         <div><strong>${L.price} € <span style="font-weight:500;font-size:14px">/ nuit</span></strong><small>${L.priceNote} · ${L.guests} voyageurs max.</small></div>
-        <a class="btn btn--amber btn--sm" href="${D.booking}" target="_blank" rel="noopener">Réserver</a>
+        <a class="btn btn--amber btn--sm" href="#reserver">Réserver</a>
       </div>
 
       <div class="gallery" id="gallery" role="dialog" aria-modal="true" aria-label="Toutes les photos">
@@ -665,45 +1005,17 @@
       } catch (_) { /* annulé */ }
     });
 
-    // Estimation de séjour (grille « hors vacances » du site)
-    const bIn = $('#b-in'), bOut = $('#b-out'), bG = $('#b-g'), lines = $('#b-lines');
-    const today = new Date().toISOString().slice(0, 10);
-    bIn.min = today; bOut.min = today;
-    if (params.get('arrivee')) bIn.value = params.get('arrivee');
-    if (params.get('depart')) bOut.value = params.get('depart');
-    if (params.get('voyageurs')) bG.value = Math.min(+params.get('voyageurs'), L.guests);
-
-    const stayPrice = (n) => {
-      if (L.id === 'marmotte') return L.price * n;
-      if (L.id === 'atelier') { const w = Math.floor(n / 7); return w * 420 + Math.min(n % 7, 6) * 70; }
-      const grid = { 1: 280, 2: 280, 3: 300, 4: 400, 5: 500, 6: 600, 7: 600 };
-      const w = Math.floor(n / 7), r = n % 7;
-      return w * 600 + (r ? grid[r] : 0);
-    };
-    const extra = { 7: 15, 8: 20, 9: 25, 10: 30 };
-    const estimate = () => {
-      bOut.min = bIn.value || today;
-      const a = new Date(bIn.value), b = new Date(bOut.value);
-      const n = Math.round((b - a) / 864e5);
-      if (!bIn.value || !bOut.value || !(n > 0)) { lines.hidden = true; return; }
-      const base = stayPrice(n), g = +bG.value;
-      const sup = (L.id === 'margeriaz' || L.id === 'colombier') && g > 6 ? (extra[g] || 30) * n : 0;
-      lines.innerHTML = `
-        <div><u>${n} nuit${n > 1 ? 's' : ''}${n >= 7 ? ' (7e nuit offerte)' : ''}</u><span>${euro(base)}</span></div>
-        ${sup ? `<div><u>Supplément ${g} voyageurs</u><span>${euro(sup)}</span></div>` : ''}
-        <div><u>Taxe de séjour</u><span style="color:var(--muted)">en sus</span></div>
-        <div class="book__total"><span>Estimation hors vacances</span><span>${euro(base + sup)}</span></div>
-        <p style="margin:0;font-size:12.5px;color:var(--muted)">Tarif indicatif, confirmé lors de la réservation. Vacances scolaires : séjours à la semaine.</p>`;
-      lines.hidden = false;
-    };
-    bIn.addEventListener('change', () => {
-      if (bIn.value && (!bOut.value || bOut.value <= bIn.value)) {
-        const d = new Date(bIn.value); d.setDate(d.getDate() + (L.id === 'atelier' || L.id === 'marmotte' ? 1 : 2)); bOut.value = d.toISOString().slice(0, 10);
-      }
-      estimate();
+    // Carte de réservation : champs maison + estimation (grille « hors vacances »)
+    const lines = $('#b-lines');
+    bindFields($('#book'));
+    onSt((s) => {
+      const html = estHTML(L.id, s.a, s.b, s.g);
+      lines.innerHTML = html;
+      lines.hidden = !html;
     });
-    [bOut, bG].forEach((x) => x.addEventListener('change', estimate));
-    estimate();
+    // Le bouton reprend le logement de la page dans la demande
+    $('#b-go').addEventListener('click', () => setSt({ lid: L.id }));
+    $('#mbar a').addEventListener('click', () => setSt({ lid: L.id }));
 
     // Barre mobile
     const mbar = $('#mbar');

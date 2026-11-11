@@ -46,42 +46,11 @@
         <h1 data-split>Une ferme de 150 ans, <em>au cœur</em> des Bauges</h1>
         <p class="hero__sub fade-in-up" style="--d:.7s">Gîtes, studio et chambre d’hôtes pour 3 à 15 personnes. Entre amis, en famille ou pour vos stages de yoga.</p>
 
-        <form class="search fade-in-up" style="--d:.9s" id="search" role="search" aria-label="Rechercher un logement">
-          <div class="search__field">
-            <label for="s-where">Logement</label>
-            <select id="s-where">
-              <option value="all">Tous les logements</option>
-              <option value="margeriaz">Gîte du Margériaz</option>
-              <option value="colombier">Gîte du Colombier</option>
-              <option value="atelier">Gîte l’Atelier</option>
-              <option value="marmotte">Chambre Marmotte</option>
-            </select>
-          </div>
-          <div class="search__field search__field--dates">
-            <label for="s-in">Arrivée</label>
-            <input type="date" id="s-in">
-          </div>
-          <div class="search__field search__field--dates">
-            <label for="s-out">Départ</label>
-            <input type="date" id="s-out">
-          </div>
-          <div class="search__field">
-            <label for="s-guests">Voyageurs</label>
-            <select id="s-guests">
-              <option value="2">2 voyageurs</option>
-              <option value="1">1 voyageur</option>
-              <option value="3">3 voyageurs</option>
-              <option value="4">4 voyageurs</option>
-              <option value="5">5 voyageurs</option>
-              <option value="6">6 voyageurs</option>
-              <option value="7">7 voyageurs</option>
-              <option value="8">8 voyageurs</option>
-              <option value="9">9 voyageurs</option>
-              <option value="10">10 voyageurs</option>
-              <option value="12">12 voyageurs</option>
-              <option value="15">15 voyageurs</option>
-            </select>
-          </div>
+        <form class="search fade-in-up" style="--d:.9s" id="search" role="search" aria-label="Rechercher un logement" data-all="1" data-anchor="root">
+          <button type="button" class="search__field pf" data-f="lid" aria-haspopup="dialog" aria-expanded="false"><span class="pf-lbl">Logement</span><span class="pf-val">Tous les logements</span></button>
+          <button type="button" class="search__field pf" data-f="a" aria-haspopup="dialog" aria-expanded="false"><span class="pf-lbl">Arrivée</span><span class="pf-val">Ajouter une date</span></button>
+          <button type="button" class="search__field pf" data-f="b" aria-haspopup="dialog" aria-expanded="false"><span class="pf-lbl">Départ</span><span class="pf-val">Ajouter une date</span></button>
+          <button type="button" class="search__field pf" data-f="g" aria-haspopup="dialog" aria-expanded="false"><span class="pf-lbl">Voyageurs</span><span class="pf-val">2 voyageurs</span></button>
           <button class="search__btn" type="submit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
             Rechercher
@@ -127,9 +96,9 @@
       <div class="container">
         <div class="story">
           <div class="story__media">
-            <div class="story__img story__img--a" data-reveal="clip"><img data-parallax="50" src="assets/img/site/06.jpg" alt="La ferme de la Bottière face au massif des Bauges" loading="lazy"></div>
-            <div class="story__img story__img--b" data-reveal="scale" style="--d:.25s"><img data-parallax="30" src="assets/img/site/05-sm.jpg" alt="La façade et ses vieilles pierres" loading="lazy"></div>
-            <div class="story__stamp" data-reveal="scale" style="--d:.45s">
+            <div class="story__img story__img--a"><img src="assets/img/site/06.jpg" alt="La ferme de la Bottière face au massif des Bauges" loading="lazy"></div>
+            <div class="story__img story__img--b"><img src="assets/img/site/05-sm.jpg" alt="La façade et ses vieilles pierres" loading="lazy"></div>
+            <div class="story__stamp">
               <svg viewBox="0 0 128 128" aria-hidden="true"><defs><path id="circ" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0"/></defs><text font-size="10.5" font-weight="700" letter-spacing="3.2" fill="#231f20"><textPath href="#circ">FERME BAUJUE · DEPUIS PLUS DE ·</textPath></text></svg>
               <div><strong>150</strong><span>ans</span></div>
             </div>
@@ -331,7 +300,7 @@
           <h2 data-split>Votre séjour dans les Bauges commence ici</h2>
           <p>Nous répondons avec plaisir à toutes vos questions. Réservation en ligne sécurisée ou par téléphone.</p>
           <div class="cta__actions">
-            <a class="btn btn--amber" href="https://la-ferme-de-la-bottiere.amenitiz.io/fr/booking/room" target="_blank" rel="noopener" data-magnetic>Réserver en ligne <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn--amber" href="#reserver" data-magnetic>Réserver <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             <a class="btn btn--light" href="tel:+33643384572">06 43 38 45 72</a>
           </div>
         </div>
