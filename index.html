@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>La ferme de la Bottière — Gîtes & chambres d’hôtes au cœur des Bauges</title>
+  <meta name="description" content="Gîtes 3 épis, studio et chambre d’hôtes dans une ferme baujue de 150 ans à Aillon-Margériaz (Savoie). Jusqu’à 15 personnes, salle de yoga, bain nordique. Meilleur tarif garanti en direct.">
+  <meta name="theme-color" content="#1d5b3a">
+  <meta property="og:title" content="La ferme de la Bottière — Gîtes au cœur des Bauges">
+  <meta property="og:description" content="Gîtes, chambre d’hôtes, salle de yoga et bain nordique à Aillon-Margériaz.">
+  <meta property="og:image" content="assets/img/site/01.jpg">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/img/site/01.jpg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="home" class="is-loading">
+
+  <div class="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <img class="loader__logo" src="assets/logo.png" alt="">
+      <div class="loader__bar"><span></span></div>
+    </div>
+  </div>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="hero__slides" aria-hidden="true">
+        <div class="hero__slide" style="background-image:url(assets/img/site/01.jpg)"></div>
+        <div class="hero__slide" style="background-image:url(assets/img/site/02.jpg);background-position:center 62%"></div>
+        <div class="hero__slide" style="background-image:url(assets/img/site/04.jpg)"></div>
+        <div class="hero__slide" style="background-image:url(assets/img/salle/01.jpg)"></div>
+      </div>
+      <div class="hero__dots" aria-label="Diapositives">
+        <button class="hero__dot" aria-label="Photo 1"><i></i></button>
+        <button class="hero__dot" aria-label="Photo 2"><i></i></button>
+        <button class="hero__dot" aria-label="Photo 3"><i></i></button>
+        <button class="hero__dot" aria-label="Photo 4"><i></i></button>
+      </div>
+
+      <div class="container hero__content">
+        <p class="hero__kicker fade-in-up" style="--d:.2s">Station-village d’Aillon-Margériaz · Savoie</p>
+        <h1 data-split>Une ferme de 150 ans, <em>au cœur</em> des Bauges</h1>
+        <p class="hero__sub fade-in-up" style="--d:.7s">Gîtes, studio et chambre d’hôtes pour 3 à 15 personnes. Entre amis, en famille ou pour vos stages de yoga.</p>
+
+        <form class="search fade-in-up" style="--d:.9s" id="search" role="search" aria-label="Rechercher un logement">
+          <div class="search__field">
+            <label for="s-where">Logement</label>
+            <select id="s-where">
+              <option value="all">Tous les logements</option>
+              <option value="margeriaz">Gîte du Margériaz</option>
+              <option value="colombier">Gîte du Colombier</option>
+              <option value="atelier">Gîte l’Atelier</option>
+              <option value="marmotte">Chambre Marmotte</option>
+            </select>
+          </div>
+          <div class="search__field search__field--dates">
+            <label for="s-in">Arrivée</label>
+            <input type="date" id="s-in">
+          </div>
+          <div class="search__field search__field--dates">
+            <label for="s-out">Départ</label>
+            <input type="date" id="s-out">
+          </div>
+          <div class="search__field">
+            <label for="s-guests">Voyageurs</label>
+            <select id="s-guests">
+              <option value="2">2 voyageurs</option>
+              <option value="1">1 voyageur</option>
+              <option value="3">3 voyageurs</option>
+              <option value="4">4 voyageurs</option>
+              <option value="5">5 voyageurs</option>
+              <option value="6">6 voyageurs</option>
+              <option value="7">7 voyageurs</option>
+              <option value="8">8 voyageurs</option>
+              <option value="9">9 voyageurs</option>
+              <option value="10">10 voyageurs</option>
+              <option value="12">12 voyageurs</option>
+              <option value="15">15 voyageurs</option>
+            </select>
+          </div>
+          <button class="search__btn" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            Rechercher
+          </button>
+        </form>
+      </div>
+      <span class="hero__scroll" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============ LOGEMENTS ============ -->
+    <section class="section" id="logements">
+      <div class="container">
+        <div class="section__head">
+          <div>
+            <span class="eyebrow" data-reveal>Nos logements</span>
+            <h2 data-split>Choisissez votre <em>refuge</em></h2>
+          </div>
+          <p class="lead" data-reveal style="--d:.15s">Chaque gîte a son propre style. De 3 à 10 personnes, et jusqu’à 15 en combinant deux gîtes.</p>
+        </div>
+
+        <div class="filters" data-reveal role="toolbar" aria-label="Filtrer les logements">
+          <button class="chip is-active" data-filter="all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11l9-7.5 9 7.5M5.5 9v11.5h13V9"/></svg>Tous</button>
+          <button class="chip" data-filter="gite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 19.5l6.5-11 4 6.5 2.5-3.5 6 8z"/></svg>Grands gîtes</button>
+          <button class="chip" data-filter="studio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 9h13v5a6 6 0 01-6 6h-1a6 6 0 01-6-6zM17 10h1.5a2.5 2.5 0 010 5H17"/></svg>Studio</button>
+          <button class="chip" data-filter="chambre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 18V6M3 14h18v4M21 14v-3a3 3 0 00-3-3h-7v6"/></svg>Chambre d’hôtes</button>
+          <button class="chip" data-filter="groupe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.6a3.5 3.5 0 010 6.8M18 14.8c2 .7 3.2 2.5 3.5 5.2"/></svg>Grands groupes</button>
+        </div>
+
+        <div class="grid-listings" id="grid"></div>
+      </div>
+    </section>
+
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Gîtes 3 épis</span><span>Vieilles pierres & bois</span><span>Bain nordique au feu de bois</span><span>Salle de yoga 60 m²</span><span>Neige 100 % naturelle</span><span>Petit-déjeuner maison</span>
+        <span>Gîtes 3 épis</span><span>Vieilles pierres & bois</span><span>Bain nordique au feu de bois</span><span>Salle de yoga 60 m²</span><span>Neige 100 % naturelle</span><span>Petit-déjeuner maison</span>
+      </div>
+    </div>
+
+    <!-- ============ LA FERME ============ -->
+    <section class="section section--paper" id="ferme">
+      <div class="container">
+        <div class="story">
+          <div class="story__media">
+            <div class="story__img story__img--a" data-reveal="clip"><img data-parallax="50" src="assets/img/site/06.jpg" alt="La ferme de la Bottière face au massif des Bauges" loading="lazy"></div>
+            <div class="story__img story__img--b" data-reveal="scale" style="--d:.25s"><img data-parallax="30" src="assets/img/site/05-sm.jpg" alt="La façade et ses vieilles pierres" loading="lazy"></div>
+            <div class="story__stamp" data-reveal="scale" style="--d:.45s">
+              <svg viewBox="0 0 128 128" aria-hidden="true"><defs><path id="circ" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0"/></defs><text font-size="10.5" font-weight="700" letter-spacing="3.2" fill="#231f20"><textPath href="#circ">FERME BAUJUE · DEPUIS PLUS DE ·</textPath></text></svg>
+              <div><strong>150</strong><span>ans</span></div>
+            </div>
+          </div>
+          <div>
+            <span class="eyebrow" data-reveal>Notre maison d’hôtes, de vie, de gîtes</span>
+            <h2 data-split>Ancienne ferme, étable, atelier de <em>bottes</em>… Quelle vie !</h2>
+            <p class="lead" data-reveal>Construits dans une ancienne ferme typique du massif rénovée au cœur de la Savoie, nos gîtes et chambres d’hôtes gardent une authenticité que nous avons volontairement laissée apparaître.</p>
+            <ul class="story__list">
+              <li data-reveal><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 19.5l6.5-11 4 6.5 2.5-3.5 6 8z"/></svg></span><div><strong>Des gîtes de caractère</strong><span>Chaque gîte possède son propre style, de 4 à 10 personnes.</span></div></li>
+              <li data-reveal style="--d:.08s"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 18V6M3 14h18v4M21 14v-3a3 3 0 00-3-3h-7v6"/></svg></span><div><strong>Bois et pierres du pays</strong><span>Une chambre d’hôtes chaleureuse et un studio entre autonomie et cocooning.</span></div></li>
+              <li data-reveal style="--d:.16s"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="4.5" r="2"/><path d="M12 7.5v6M5 10.5l7 1 7-1M7.5 20.5l4.5-7 4.5 7M5 20.5h14"/></svg></span><div><strong>Un lieu pour vos séjours</strong><span>Yoga, trail, stages de chant, groupes de musique : venez vous ressourcer.</span></div></li>
+            </ul>
+            <a class="btn" href="#experiences" data-reveal data-magnetic>Découvrir nos expériences <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+
+        <div class="stats" style="margin-top:clamp(70px,9vw,120px)">
+          <div class="stat" data-reveal><div class="stat__num"><span data-count="150">150</span><sup>ans</sup></div><p class="stat__lbl">d’histoire pour notre ferme baujue rénovée</p></div>
+          <div class="stat" data-reveal style="--d:.08s"><div class="stat__num"><span data-count="15">15</span><sup>pers.</sup></div><p class="stat__lbl">accueillies en combinant deux gîtes</p></div>
+          <div class="stat" data-reveal style="--d:.16s"><div class="stat__num"><span data-count="18">18</span><sup>couverts</sup></div><p class="stat__lbl">autour des tables de notre espace repas</p></div>
+          <div class="stat" data-reveal style="--d:.24s"><div class="stat__num"><span data-count="30">30</span><sup>min</sup></div><p class="stat__lbl">de Chambéry, du lac du Bourget et d’Aix-les-Bains</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EXPÉRIENCES ============ -->
+    <section class="section" id="experiences">
+      <div class="container">
+        <div class="section__head">
+          <div>
+            <span class="eyebrow" data-reveal>Expériences</span>
+            <h2 data-split>Bien plus qu’un <em>hébergement</em></h2>
+          </div>
+          <p class="lead" data-reveal style="--d:.15s">Salle de yoga, bain nordique, table d’hôtes : nos propositions, en cours et à construire.</p>
+        </div>
+
+        <div class="exp-grid">
+          <article class="exp exp--lg" data-reveal>
+            <div class="exp__bg"><img data-parallax="40" src="assets/img/salle/02.jpg" alt="La salle de yoga éclairée à la bougie" loading="lazy"></div>
+            <span class="exp__tag">Stages · retraites · séminaires</span>
+            <h3>La salle de yoga & activités</h3>
+            <p>60 m² privatisés dans l’ancienne étable, le charme des vieilles pierres et le confort en plus. Jusqu’à 15 stagiaires, matériel de yoga fourni pour 10 personnes.</p>
+            <div class="exp__price">
+              <strong>de <b>50 €</b> à <b>150 €</b> / jour</strong>
+              <a class="btn btn--light btn--sm" href="tel:+33643384572">Organiser un séjour</a>
+            </div>
+          </article>
+          <article class="exp exp--md" data-reveal style="--d:.1s">
+            <div class="exp__bg"><img data-parallax="40" src="assets/img/site/08.jpg" alt="Le bain nordique chauffé au feu de bois" loading="lazy"></div>
+            <span class="exp__tag">Nouveau · 10 places</span>
+            <h3>Le bain nordique</h3>
+            <p>Chauffé à 37 °C au feu de bois, avec sa marche spéciale enfants. Sur réservation par créneau privatif de 1h30 — nous prenons le temps de couper le bois (3 h de chauffe).</p>
+            <div class="exp__price"><strong>à partir de <b>50 €</b> / créneau</strong></div>
+          </article>
+          <article class="exp exp--sm" data-reveal>
+            <div class="exp__bg"><img src="assets/img/site/12.jpg" alt="Petit-déjeuner maison sucré-salé" loading="lazy"></div>
+            <span class="exp__tag">Maison & local</span>
+            <h3>Petit-déjeuner</h3>
+            <p>Sucré-salé, confitures du verger, servi en panier ou à notre table.</p>
+          </article>
+          <article class="exp exp--sm" data-reveal style="--d:.08s">
+            <div class="exp__bg"><img src="assets/img/site/13.jpg" alt="Assiette de la table d’hôtes" loading="lazy"></div>
+            <span class="exp__tag">Sur demande</span>
+            <h3>Table d’hôtes</h3>
+            <p>Cuisine maison, produits locaux et bio dès que possible, légumes du potager en saison.</p>
+          </article>
+          <article class="exp exp--sm" data-reveal style="--d:.16s">
+            <div class="exp__bg"><img src="assets/img/site/09.jpg" alt="Le domaine skiable d’Aillon-Margériaz" loading="lazy"></div>
+            <span class="exp__tag">Été comme hiver</span>
+            <h3>Margériaz 1400</h3>
+            <p>Ski 100 % neige naturelle, randonnée et trail au départ de la ferme.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TARIFS ============ -->
+    <section class="section section--paper" id="tarifs">
+      <div class="container">
+        <div class="section__head">
+          <div>
+            <span class="eyebrow" data-reveal>Tarifs & disponibilités</span>
+            <h2 data-split>Des tarifs <em>simples</em> et transparents</h2>
+          </div>
+          <p class="lead" data-reveal style="--d:.15s">Trois tarifications : vacances d’été, vacances de Noël & d’hiver, et le reste de l’année. Nos deux grands gîtes sont au même tarif.</p>
+        </div>
+
+        <div class="best-price" data-reveal><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Meilleur tarif garanti en réservation directe</div>
+
+        <div data-tabs data-reveal>
+          <div class="tabs" role="tablist">
+            <button class="tab is-active" role="tab" aria-selected="true">Hors vacances</button>
+            <button class="tab" role="tab" aria-selected="false">Vacances scolaires</button>
+            <button class="tab" role="tab" aria-selected="false">Services & options</button>
+          </div>
+          <div class="tab-panel is-active" role="tabpanel">
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Séjour</th><th>1 nuit</th><th>2 nuits</th><th>3 nuits</th><th>4 nuits</th><th>5 nuits</th><th>6 nuits</th><th>1 semaine<br><small style="text-transform:none;letter-spacing:0">7e nuit offerte</small></th></tr></thead>
+                <tbody id="t-nuits"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-panel" role="tabpanel">
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Période · 7 nuits</th><th>Colombier & Margériaz <small style="text-transform:none;letter-spacing:0">base 6 pers.</small></th><th>Studio l’Atelier</th></tr></thead>
+                <tbody id="t-vac"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-panel" role="tabpanel">
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Prestation / service</th><th>Prix unitaire</th></tr></thead>
+                <tbody id="t-serv"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="price-notes">
+          <div class="note" data-reveal><strong>Tout est inclus</strong>Électricité, eau, chauffage en hiver, nappes, torchons et tapis de bain. Draps et linge de toilette offerts à partir de 7 nuits.</div>
+          <div class="note" data-reveal style="--d:.08s"><strong>Chambre Marmotte</strong>À partir de 65 € la nuit, uniquement en supplément d’un gîte. 20 m², salle d’eau privative.</div>
+          <div class="note" data-reveal style="--d:.16s"><strong>Taxe de séjour</strong>Ajoutée aux tarifs : 1,20 €/adulte/nuit en grand gîte, 0,85 €/adulte/nuit en chambre d’hôtes et à l’Atelier.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INFOS PRATIQUES ============ -->
+    <section class="section section--forest" id="infos">
+      <div class="container">
+        <div class="info-grid">
+          <div>
+            <span class="eyebrow" data-reveal>Infos pratiques</span>
+            <h2 data-split style="margin:18px 0 22px">Préparez votre <em style="color:var(--leaf)">venue</em></h2>
+            <p class="lead" data-reveal>Loin des grandes stations, des villages qui vivent 365 jours par an, des fermes, des artisans. Au calme, tout en restant proche des villes et des lacs.</p>
+
+            <div class="distances">
+              <div class="distance" data-reveal><strong>30 min</strong><span>Chambéry · gare TGV & aéroport</span></div>
+              <div class="distance" data-reveal style="--d:.06s"><strong>45 min</strong><span>Annecy et son lac</span></div>
+              <div class="distance" data-reveal style="--d:.12s"><strong>30–45 min</strong><span>Lac du Bourget & thermes d’Aix-les-Bains</span></div>
+              <div class="distance" data-reveal style="--d:.18s"><strong>3 km</strong><span>Navettes à Aillon-le-Jeune village</span></div>
+            </div>
+
+            <div class="acc" data-reveal style="margin-top:34px">
+              <div class="acc__item is-open">
+                <button class="acc__btn" aria-expanded="true">Venir en voiture <i></i></button>
+                <div class="acc__panel"><div>
+                  <ul>
+                    <li>Depuis Genève, Paris et Lyon : A43 puis A41, sortie 14 Aix-les-Bains Nord.</li>
+                    <li>Depuis Grenoble : A43/N201, sortie 18 Massif des Bauges.</li>
+                  </ul>
+                  <p>Par temps de neige, la route depuis Chambéry passe par le col des Prés, facilement enneigé : préférez l’A41 et la route sans col via Cusy.</p>
+                  <p>Coordonnées GPS : 45.64772, 6.09113</p>
+                </div></div>
+              </div>
+              <div class="acc__item">
+                <button class="acc__btn" aria-expanded="false">Sans voiture <i></i></button>
+                <div class="acc__panel"><div>
+                  <p>Les navettes et bus s’arrêtent à Aillon-le-Jeune village, à 3 km. Prévenez-nous à l’avance : nous pouvons venir vous chercher à l’arrivée et vous ramener au départ.</p>
+                  <p>BlaBlaCar Daily fonctionne bien ici, et des bornes de stop lumineuses sont installées au pied de chaque route qui monte en Bauges.</p>
+                </div></div>
+              </div>
+              <div class="acc__item">
+                <button class="acc__btn" aria-expanded="false">Périodes & durées de séjour <i></i></button>
+                <div class="acc__panel"><div>
+                  <ul>
+                    <li>Vacances d’été : location à la semaine pour tous nos gîtes.</li>
+                    <li>Noël, Nouvel An et hiver : à la semaine pour les grands gîtes, dès 2/3 nuits pour l’Atelier.</li>
+                    <li>Hors vacances : dès 2 nuits pour les grands gîtes, 1 nuit pour l’Atelier.</li>
+                  </ul>
+                  <p>Les tarifs basse saison s’appliquent aussi aux vacances de Pâques et de la Toussaint — profitez de nos couleurs d’automne et de nos prés vert vif au printemps !</p>
+                </div></div>
+              </div>
+              <div class="acc__item">
+                <button class="acc__btn" aria-expanded="false">Linge & ménage <i></i></button>
+                <div class="acc__panel"><div>
+                  <p>Draps, serviettes, torchons et nappes fournis gratuitement à partir de 7 nuits ; inclus dès la première nuit en chambre d’hôtes. Les lits sont faits à votre arrivée.</p>
+                  <p>Option ménage de fin de séjour : 30 € pour l’Atelier, 90 € pour un grand gîte.</p>
+                </div></div>
+              </div>
+            </div>
+          </div>
+          <div class="map" data-reveal="scale">
+            <iframe title="Carte — La ferme de la Bottière" loading="lazy" src="https://maps.google.com/maps?q=45.6388106,6.0902128&z=11&output=embed"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="section--tight" style="padding-top:clamp(60px,8vw,100px);padding-bottom:clamp(60px,8vw,100px)">
+      <div class="container">
+        <div class="cta" data-reveal="scale">
+          <div class="cta__bg"><img data-parallax="70" src="assets/img/site/03.jpg" alt="" loading="lazy"></div>
+          <span class="eyebrow">Réservez en direct</span>
+          <h2 data-split>Votre séjour dans les Bauges commence ici</h2>
+          <p>Nous répondons avec plaisir à toutes vos questions. Réservation en ligne sécurisée ou par téléphone.</p>
+          <div class="cta__actions">
+            <a class="btn btn--amber" href="https://la-ferme-de-la-bottiere.amenitiz.io/fr/booking/room" target="_blank" rel="noopener" data-magnetic>Réserver en ligne <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn--light" href="tel:+33643384572">06 43 38 45 72</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
